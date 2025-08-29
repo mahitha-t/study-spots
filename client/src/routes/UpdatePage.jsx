@@ -1,9 +1,11 @@
 import React from 'react'
+import UpdateSpot from './components/UpdateSpot'
 
 const UpdatePage =() => {
     return(
         <div>
-            Update
+            <h1 className="text-center">Update</h1>
+            <UpdateSpot/>
         </div>
     )
 }

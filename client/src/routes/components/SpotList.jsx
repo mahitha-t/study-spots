@@ -1,16 +1,42 @@
-import React,{useEffect} from 'react';
+import React,{useEffect, useContext} from 'react';
 import SpotFinder from "../../apis/SpotFinder";
-const SpotList =() => {
+import { SpotContext } from '../../context/SpotContext';
+import { useNavigate } from 'react-router-dom';
 
-    useEffect(async ()=>{
-        try{
-            const reponse= await SpotFinder.get("/");
-            console.log(reponse);
+const SpotList =(props) => {
+    const {spots, setSpots} = useContext(SpotContext)
+    let navigate = useNavigate()
+    useEffect(() => {
+  async function fetchSpots() {
+    try {
+      const response = await SpotFinder.get("/");
+      console.log(response); 
+      setSpots(response.data.data.spots);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  fetchSpots();
+}, [setSpots]);
+
+    const handleDelete = async (id) => {
+        try {
+            const response = await SpotFinder.delete(`/${id}`);
+            setSpots(spots.filter(spot => {
+                return spot.id !== id
+            }))
+            console.log(response)
         }
-        catch(err){
+        catch (err){
             console.log(err)
         }
-    },[])
+    }
+
+    const handleUpdate = async (id) => {
+        navigate(`/spot/${id}/update`);
+            
+    }
 
     return(
         <div className="list-group">
@@ -26,22 +52,22 @@ const SpotList =() => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                            <td>mcd</td>
-                            <td>nyc</td>
-                            <td>$$</td>
-                            <td>Rating</td>
-                            <td><button className="btn btn-warning">Update</button></td>
-                            <td><button className="btn btn-danger">Delete</button></td>
-                    </tr>
-                    <tr>
-                            <td>mcd</td>
-                            <td>nyc</td>
-                            <td>$$</td>
-                            <td>Rating</td>
-                            <td><button className="btn btn-warning">Update</button></td>
-                            <td><button className="btn btn-danger">Delete</button></td>
-                    </tr>
+                    {spots&& spots.map((spot) => {
+                        if (!spot) return null;
+                        return(
+                        <tr key={spot.id}>
+                            <td>{spot.name}</td>
+                            <td>{spot.location}</td>
+                            <td>{".".repeat(spot.volume)}</td>
+                            <td>reviews</td>
+                            <td>
+                                <button onClick={()=>handleUpdate(spot.id)} className="btn btn-warning">Update</button>
+                            </td>
+                            <td><button onClick={()=>handleDelete(spot.id)} className="btn btn-danger">Delete</button></td>                        
+                        </tr>)
+                    }
+                    )}
+                    
                 </tbody>
             </table>
         </div>
